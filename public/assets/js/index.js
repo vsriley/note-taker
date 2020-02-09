@@ -3,19 +3,9 @@ var $noteText = $(".note-textarea");
 var $saveNoteBtn = $(".save-note");
 var $newNoteBtn = $(".new-note");
 var $noteList = $(".list-container .list-group");
-
-
-var express = require("express");
-var path = require("path");
-
-var app = express();
-var PORT = 3000;
-
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-
 // activeNote is used to keep track of the note in the textarea
 var activeNote = {};
+let noteID = 1;
 
 // A function for getting all notes from the db
 var getNotes = function() {
@@ -63,13 +53,16 @@ var renderActiveNote = function() {
 var handleNoteSave = function() {
   var newNote = {
     title: $noteTitle.val(),
-    text: $noteText.val()
+    text: $noteText.val(),
+    id: noteID
   };
 
   saveNote(newNote).then(function(data) {
     getAndRenderNotes();
     renderActiveNote();
   });
+
+  noteID++;
 };
 
 // Delete the clicked note
@@ -142,12 +135,6 @@ var getAndRenderNotes = function() {
   });
 };
 
-// Basic route that sends the user to the notes page
-app.get("/notes", function(req, res) {
-  // transfers the file at a given path
-  res.sendFile(path.join(__dirname, "notes.html"));
-});
-
 $saveNoteBtn.on("click", handleNoteSave);
 $noteList.on("click", ".list-group-item", handleNoteView);
 $newNoteBtn.on("click", handleNewNoteView);
@@ -157,8 +144,3 @@ $noteText.on("keyup", handleRenderSaveBtn);
 
 // Gets and renders the initial list of notes
 getAndRenderNotes();
-
-// Starts the server to begin listening
-app.listen(PORT, function() {
-  console.log("App listening on PORT " + PORT);
-});

@@ -13,27 +13,44 @@ app.use(express.json());
 
 // return index.html
 app.get("/", function (req, res) {
-
+    res.sendFile(path.join(__dirname, "index.html"));
 });
 
 // return notes.html
 app.get("/notes", function (req, res) {
-
+    res.sendFile(path.join(__dirname, "notes.html"));
 });
 
 // read db.json file and return all saved notes as JSOn
 app.get("/api/notes", function (req,res) {
-
+    return res.json(data);
 });
 
-// receive new note to save on the request body, add it to the `db.json` file, and then return the new note to the client.
+// receive new note to save on the request body, add it to the `db.json` file, 
+// and then return the new note to the client.
 app.post("/api/notes", function (req,res) {
-
+    data.push(req.body);
+    fs.writeFile("./json/db.json", JSON.stringify(data), function(err) {
+        if(err) throw err;
+        console.log("New post successful!");
+    });
+    return res.json(data);
 });
 
 // remove note with given id
 app.delete("/api/notes/:id", function (req,res) {
+    data = data.filter(function (data) {
+        if (req.params.id === data.id) {
+            return false;
+        }
+        return true;
+    });
 
+    res.writeFile("./json/db.json", JSON.stringify(data), function(err){
+        if(err) throw err;
+        console.log("Note successfully deleted!");
+    });
+    return res.json(data);
 });
 
 app.listen(PORT, function () {
